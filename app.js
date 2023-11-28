@@ -93,3 +93,6 @@ app.get("/names/:id", (req, res) => {
 app.listen(port, () => {
   console.log(`Le port qui en train d'être écouté est le port numéro ${port}`)
 })
+
+
+FIN JOUR 1
