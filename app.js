@@ -3,7 +3,7 @@ const morgan = require("morgan")
 const app = express()
 const port = 3000
 
-const mockCoworkings = require("./mock-coworkings")
+let mockCoworkings = require("./mock-coworkings")
 
 // middleware qui permet d'interpréter' le corps de ma requête (req.body)  en format json
 app.use(express.json())
@@ -34,6 +34,7 @@ app.post("/api/coworkings", (req, res) => {
   // On récupère le dernier élément du tableau et on ajoute +1 à son id
   // let coworking = req.body
   const newId = mockCoworkings[mockCoworkings.length - 1].id + 1
+
   //... SPREAD OPERATOR
   let coworking = { id: newId, ...req.body }
   mockCoworkings.push(coworking)
@@ -43,6 +44,35 @@ app.post("/api/coworkings", (req, res) => {
   res.json(result)
 })
 
+app.put("/api/coworkings/:id", (req, res) => {
+  let coworking = mockCoworkings.find((el) => el.id === parseInt(req.params.id))
+  let result
+  if (coworking) {
+    coworking.superficy = req.body.superficy
+    result = { msg: "Le coworking a bien été modifié", data: coworking }
+  } else {
+    result = `Aucun élément ne correspond à l'id n°${req.params.id}`
+  }
+
+  res.json(result)
+})
+
+app.delete("/api/coworkings/:id", (req, res) => {
+  let coworking = mockCoworkings.find((el) => el.id === parseInt(req.params.id))
+  let result
+
+  if (coworking) {
+    mockCoworkings = mockCoworkings.filter((el) => el.id !== coworking.id)
+    result = { msg: `Le coworking ${coworking.name} a bien été supprimé`, data: coworking }
+  } else {
+    result = `Aucun élément ne correspond à l'id n°${req.params.id}`
+  }
+
+  res.json(result)
+})
+
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`)
 })
+
+FIN JOUR 2
