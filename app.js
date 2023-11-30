@@ -5,7 +5,7 @@ const port = 3000
 
 let mockCoworkings = require("./mock-coworkings")
 
-// middleware qui permet d'interpréter' le corps de ma requête (req.body)  en format json
+// middleware qui me permet d'interpréter le corps de ma requête (req.body) en format json
 app.use(express.json())
 app.use(morgan("dev"))
 
@@ -27,45 +27,56 @@ app.get("/api/coworkings/:id", (req, res) => {
   res.json(result)
 })
 
-// implémenter le endpoint post qui renvoie une réponse "post fonctionne"
-app.post("/api/coworkings", (req, res) => {
-  console.log(req.body)
-  // Ajouter le coworking dans le tableau, en automatisant le génération d'un id
-  // On récupère le dernier élément du tableau et on ajoute +1 à son id
+// implémenter le endpoint post qui renvoie une réposne "post fonctionne"
+app.post("/api/coworkings/", (req, res) => {
+  // Ajouter le coworking dans le tableau, en automatisant la génération d'un id. On récupère le dernier élément du tableau et on ajoute +1 à son id.
   // let coworking = req.body
-  const newId = mockCoworkings[mockCoworkings.length - 1].id + 1
 
-  //... SPREAD OPERATOR
+  const newId = mockCoworkings[mockCoworkings.length - 1].id + 1
+  // let coworking = {id: newId, superficy : req.body.superficy, capacity : req.body.capacity, name: req.body.name}
+
+  // ... SPREAD OPERATOR
+
   let coworking = { id: newId, ...req.body }
   mockCoworkings.push(coworking)
 
-  // On renvoie un objet qui contient les propriétés message et data
-  let result = { msg: "Le coworking a bien été ajouté", data: coworking }
+  // On renvoie un objet qui contient les proriétés message et data
+  // message: `Le coworking a bien été ajouté`
+  const result = { message: `Le coworking a bien été ajouté`, data: coworking }
   res.json(result)
 })
 
+// implémenter le endpoint put coworkings avec :id, ainsi que la requête correspondante dans Postman
 app.put("/api/coworkings/:id", (req, res) => {
+  //la méthode find renvoie un nouvel objet, clone de celui contenu dans le tableau
   let coworking = mockCoworkings.find((el) => el.id === parseInt(req.params.id))
+
   let result
   if (coworking) {
-    coworking.superficy = req.body.superficy
-    result = { msg: "Le coworking a bien été modifié", data: coworking }
+    // coworking.superficy = req.body.superficy
+
+    // DISTINCTION IMPORTANTE entre l'id des objets contenus dans le tableau,
+    // et l'index de ces objets dans le tableau, par exemple : Oasis Coworking a pour .id 12 et pour index dans le tableau [2]
+    const newCoworking = { ...coworking, ...req.body }
+    const index = mockCoworkings.findIndex((el) => el.id === parseInt(req.params.id))
+    mockCoworkings[index] = newCoworking
+    result = { message: "Coworking modifié", data: newCoworking }
   } else {
-    result = `Aucun élément ne correspond à l'id n°${req.params.id}`
+    result = { message: `Le coworking n'existe pas`, data: {} }
   }
 
   res.json(result)
 })
 
 app.delete("/api/coworkings/:id", (req, res) => {
-  let coworking = mockCoworkings.find((el) => el.id === parseInt(req.params.id))
-  let result
+  const coworking = mockCoworkings.find((el) => el.id === parseInt(req.params.id))
 
+  let result
   if (coworking) {
     mockCoworkings = mockCoworkings.filter((el) => el.id !== coworking.id)
-    result = { msg: `Le coworking ${coworking.name} a bien été supprimé`, data: coworking }
+    result = { message: "Coworking supprimé", data: coworking }
   } else {
-    result = `Aucun élément ne correspond à l'id n°${req.params.id}`
+    result = { message: `Le coworking n'existe pas`, data: {} }
   }
 
   res.json(result)
@@ -74,5 +85,3 @@ app.delete("/api/coworkings/:id", (req, res) => {
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`)
 })
-
-FIN JOUR 2
