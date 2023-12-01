@@ -9,10 +9,18 @@ router
     res.json(mockCoworkings)
   })
   .post((req, res) => {
-    const newId = mockCoworkings[mockCoworkings.length - 1].id + 1
-    let coworking = { id: newId, ...req.body }
-    mockCoworkings.push(coworking)
-    const result = { message: `Le coworking a bien été ajouté`, data: coworking }
+    // const newId = mockCoworkings[mockCoworkings.length - 1].id + 1
+    // let coworking = { id: newId, ...req.body }
+    // mockCoworkings.push(coworking)
+    Coworking.create({
+      name: Coworking.name,
+      price: Coworking.price,
+      address: Coworking.name,
+      superficy: Coworking.name,
+      capacity: Coworking.name,
+    })
+
+    const result = { message: `Le coworking a bien été ajouté` }
     res.json(result)
   })
 

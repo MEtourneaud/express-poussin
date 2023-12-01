@@ -13,15 +13,7 @@ const sequelize = new Sequelize("bordeaux_coworkings", "root", "", {
 const Coworking = CoworkingModel(sequelize, DataTypes)
 
 // D. On synchronise la BDD avec les models défini dans notre API
-sequelize.sync({ force: true }).then(() => {
-  Coworking.create({
-    name: "Imagin'Office",
-    price: { hour: null, day: 25, month: 199 },
-    address: { number: "7", street: "place des Citernes", postCode: 33800, city: "Bordeaux" },
-    superficy: 2000,
-    capacity: 50,
-  })
-})
+sequelize.sync({ force: true })
 
 sequelize
   .authenticate()
