@@ -1,6 +1,7 @@
 // B. On importe le gabarit du Model Coworking défini dans le fichier ./models/coworking'
 const CoworkingModel = require("../models/coworking")
 const { Sequelize, DataTypes } = require("sequelize")
+const mockCoworkings = require("../mock-coworkings")
 
 // A. On créé une instance de bdd qui communique avec Xampp
 const sequelize = new Sequelize("bordeaux_coworkings", "root", "", {
@@ -13,7 +14,22 @@ const sequelize = new Sequelize("bordeaux_coworkings", "root", "", {
 const Coworking = CoworkingModel(sequelize, DataTypes)
 
 // D. On synchronise la BDD avec les models défini dans notre API
-sequelize.sync({ force: true })
+sequelize
+  .sync({ force: true })
+  .then(() => {
+    mockCoworkings.forEach((coworking) => {
+      // Coworking.create({
+      //   name: coworking.name,
+      //   price: coworking.price,
+      //   address: coworking.address,
+      //   superficy: coworking.superficy,
+      //   capacity: coworking.capacity,
+      // })
+      const newCoworking = { ...coworking }
+      Coworking.create(newCoworking)
+    })
+  })
+  .catch((error) => {})
 
 sequelize
   .authenticate()
