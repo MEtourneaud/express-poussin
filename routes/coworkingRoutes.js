@@ -12,16 +12,26 @@ router
     // const newId = mockCoworkings[mockCoworkings.length - 1].id + 1
     // let coworking = { id: newId, ...req.body }
     // mockCoworkings.push(coworking)
-    Coworking.create({
-      name: Coworking.name,
-      price: Coworking.price,
-      address: Coworking.name,
-      superficy: Coworking.name,
-      capacity: Coworking.name,
-    })
+    const newCoworking = { ...req.body }
+    // console.log(newCoworking)
+    // Coworking.create({
+    //     name: req.body.name,
+    //     price: req.body.price,
+    //     address: req.body.address,
+    //     superficy: req.body.superficy,
+    //     capacity: req.body.capacity,
+    // })
 
-    const result = { message: `Le coworking a bien été ajouté` }
-    res.json(result)
+    Coworking.create(newCoworking)
+      .then((coworking) => {
+        res.json({ message: "Le coworking a bien été créé", data: coworking })
+        console.log(coworking)
+      })
+      .catch((error) => {
+        res.json({ message: `Le coworking n'a pas pu être créé`, data: error.message })
+      })
+
+    // const result = { message: `Le coworking a bien été ajouté`, data: newCoworking }
   })
 
 router
