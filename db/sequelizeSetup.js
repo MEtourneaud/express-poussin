@@ -18,13 +18,6 @@ sequelize
   .sync({ force: true })
   .then(() => {
     mockCoworkings.forEach((coworking) => {
-      // Coworking.create({
-      //   name: coworking.name,
-      //   price: coworking.price,
-      //   address: coworking.address,
-      //   superficy: coworking.superficy,
-      //   capacity: coworking.capacity,
-      // })
       const newCoworking = { ...coworking }
       Coworking.create(newCoworking)
     })
