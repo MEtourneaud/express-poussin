@@ -1,23 +1,23 @@
 const users = [
   {
     id: 10,
-    name: "Alice Smith",
-    age: 22,
-    country: "France",
+    username: "Alice",
+    password: "mdp123",
+    email: "fakemail@fake.fr",
     created: new Date(),
   },
   {
     id: 11,
-    name: "Bob Johnson",
-    age: 35,
-    country: "Etats-Unis",
+    username: "Bob",
+    password: "mdp123",
+    email: "fakemail2@fake.fr",
     created: new Date(),
   },
   {
     id: 12,
-    name: "Charlie Brown",
-    age: 65,
-    country: "Royaume-Uni",
+    username: "Charlie",
+    password: "mdp123",
+    email: "fakemail3@fake.fr",
     created: new Date(),
   },
 ]

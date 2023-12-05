@@ -1,25 +1,16 @@
 const express = require("express")
 const router = express.Router()
 
-router
-  .route("/")
-  .get((req, res) => {
-    res.json("Endpoint GET fonctionnel!")
-  })
-  .post((req, res) => {
-    res.json("Endpoint POST fonctionnel!")
-  })
+const {
+  findAllUsers,
+  findUserByPk,
+  createUser,
+  updateUser,
+  deleteUser,
+} = require("../controllers/userController")
 
-router
-  .route("/:id")
-  .get((req, res) => {
-    res.json("Endpoint GET BY ID fonctionnel!")
-  })
-  .put((req, res) => {
-    res.json("Endpoint PUT fonctionnel!")
-  })
-  .delete((req, res) => {
-    res.json("Endpoint DELETE fonctionnel!")
-  })
+router.route("/").get(findAllUsers).post(createUser)
+
+router.route("/:id").get(findUserByPk).put(updateUser).delete(deleteUser)
 
 module.exports = router
