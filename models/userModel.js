@@ -4,11 +4,11 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       allowNull: false,
       unique: {
-        msg: "Username déjà pris.",
+        msg: "Le nom d'utilisateur est déjà pris.",
       },
       validate: {
         len: {
-          msg: "L'username doit avoir un nombre de caractères compris entre 3 et 50.",
+          msg: "Le nom d'utilisateur doit avoir un nombre de caractères compris entre 3 et 50.",
           args: [3, 50],
         },
       },
@@ -16,16 +16,11 @@ module.exports = (sequelize, DataTypes) => {
     password: {
       type: DataTypes.STRING,
       allowNull: false,
-      validate: {
-        len: {
-          msg: "Le mot de passe doit avoir un nombre de caractères compris entre 5 et 50.",
-          args: [5, 50],
-        },
-      },
     },
     email: {
       type: DataTypes.STRING,
       allowNull: false,
+      isEmail: true,
       unique: {
         msg: "Cette adresse mail est déjà utilisée.",
       },

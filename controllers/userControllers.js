@@ -29,7 +29,7 @@ const createUser = (req, res) => {
 
   User.create(newUser)
     .then((user) => {
-      res.json({ message: "L'utilisateur a bien été créé", data: user })
+      res.status(201).json({ message: "L'utilisateur a bien été créé", data: user })
       console.log(user)
     })
     .catch((error) => {
@@ -44,7 +44,7 @@ const updateUser = (req, res) => {
         user
           .update(req.body)
           .then(() => {
-            res.json({ message: "L'utilisateur a bien été mis à jour.", data: user })
+            res.status(201).json({ message: "L'utilisateur a bien été mis à jour.", data: user })
           })
           .catch((error) => {
             res.status(500).json({ message: "La mise à jour a échoué.", data: error.message })

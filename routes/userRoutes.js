@@ -7,7 +7,7 @@ const {
   createUser,
   updateUser,
   deleteUser,
-} = require("../controllers/userController")
+} = require("../controllers/userControllers")
 
 router.route("/").get(findAllUsers).post(createUser)
 

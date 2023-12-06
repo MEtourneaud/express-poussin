@@ -7,7 +7,7 @@ const {
   createCoworking,
   updateCoworking,
   deleteCoworking,
-} = require("../controllers/coworkingController")
+} = require("../controllers/coworkingControllers")
 
 router.route("/").get(findAllCoworkings).post(createCoworking)
 
