@@ -3,30 +3,35 @@ const bcrypt = require("bcrypt")
 const jwt = require("jsonwebtoken")
 
 const login = (req, res) => {
+  // A. On vérifie que l'utilisateur qui tente de se connecter existe bel et bien dans notre BDD
   User.findOne({ where: { username: req.body.username } })
     .then((result) => {
+      // B. Si l'utilisateur n'existe pas, on renvoie une réponse erreur Client
       if (!result) {
-        return res.status(404).json({ message: `Le nom d'utilisateur n'existe pas` })
+        return res.status(404).json({ message: `Le nom d'utilisateur n'existe pas.` })
       }
+
+      // C. On vérifie que le mot de passe fourni pour se connecter corresponde au mot de passe de l'utilisateur dans la BDD
       bcrypt.compare(req.body.password, result.password).then((isValid) => {
+        // D. Si le mot de passe n'est pas le bon, on renvoie une erreur Client, non authentifié
         if (!isValid) {
-          return res.status(401).json({ message: `Le mot de passe n'est pas valide` })
+          return res.status(401).json({ message: `Le mot de passe n'est pas valide.` })
         }
+
+        // E. On génère un token qui servira à vérifier dans chaque endpoint où ce sera nécessaire si l'utilisateur peut consommer la ressource. Dans l'état actuel, le token est utilisé dans le POST COWORKINGS
         const token = jwt.sign(
           {
-            data: "foobar",
+            data: result.username,
           },
-          "secret_key",
+          "secret_key_@_12_M",
           { expiresIn: "1h" }
         )
-        res.json({ message: `Login résussi`, data: token })
+
+        res.json({ message: `Login réussi`, data: token })
       })
     })
     .catch((error) => {
-      if (error instanceof UniqueConstraintError || error instanceof ValidationError) {
-        return res.status(400).json({ message: error.message })
-      }
-      res.status(500).json({ message: "Une erreur est survenue.", data: error.message })
+      res.status(500).json({ data: error.message })
     })
 }
 
