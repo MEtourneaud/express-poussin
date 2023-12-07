@@ -8,15 +8,15 @@ const findAllUsers = (req, res) => {
       res.json(results)
     })
     .catch((error) => {
-      res.json(error.message)
+      res.status(500).json(error.message)
     })
 }
 
 const findUserByPk = (req, res) => {
   User.findByPk(parseInt(req.params.id))
-    .then((user) => {
-      if (user) {
-        res.status(201).json({ message: "Un utilisateur a été trouvé.", data: user })
+    .then((result) => {
+      if (result) {
+        res.json({ message: "Un utilisateur a été trouvé.", data: result })
       } else {
         res.status(404).json({ message: `Aucun utilisateur n'a été trouvé.` })
       }
@@ -27,29 +27,36 @@ const findUserByPk = (req, res) => {
 }
 
 const createUser = (req, res) => {
-  bcrypt.hash(req.body.password, 10).then((hash) => {
-    User.create({ ...req.body, password: hash })
-      .then((user) => {
-        res.status(201).json({ message: "L'utilisateur a bien été créé", data: user })
-      })
-      .catch((error) => {
-        if (error instanceof UniqueConstraintError || error instanceof ValidationError) {
-          return res.status(400).json({ message: error.message })
-        }
-        res.status(500).json({ message: `L'utilisateur n'a pas pu être créé`, data: error.message })
-      })
-  })
+  bcrypt
+    .hash(req.body.password, 10)
+    .then((hash) => {
+      User.create({ ...req.body, password: hash })
+        .then((user) => {
+          res.status(201).json({ message: `L'utilisateur a bien été créé`, data: user })
+        })
+        .catch((error) => {
+          if (error instanceof UniqueConstraintError || error instanceof ValidationError) {
+            return res.status(400).json({ message: error.message })
+          }
+          res
+            .status(500)
+            .json({ message: `L'utilisateur n'a pas pu être créé`, data: error.message })
+        })
+    })
+    .catch((error) => {
+      console.log(error.message)
+    })
 }
 
 const updateUser = (req, res) => {
   User.findByPk(req.params.id)
-    .then((user) => {
-      if (user) {
-        return user.update(req.body).then(() => {
-          res.status(201).json({ message: "L'utilisateur a bien été mis à jour.", data: user })
+    .then((result) => {
+      if (result) {
+        return result.update(req.body).then(() => {
+          res.status(201).json({ message: `L'utilisateur a bien été mis à jour.`, data: result })
         })
       } else {
-        res.status(404).json({ message: `Aucun utilisateur n'a été mis à jour.` })
+        res.status(404).json({ message: `Aucun utilisateur à mettre à jour n'a été trouvé.` })
       }
     })
     .catch((error) => {
@@ -62,27 +69,18 @@ const updateUser = (req, res) => {
 
 const deleteUser = (req, res) => {
   User.findByPk(req.params.id)
-    .then((user) => {
-      if (user) {
-        return user.destroy().then((user) => {
-          res.json({ mesage: `L'utilisateur a bien été supprimé.`, data: user })
+    .then((result) => {
+      if (result) {
+        return result.destroy().then((result) => {
+          res.json({ mesage: `L'utilisateur a bien été supprimé.`, data: result })
         })
       } else {
         res.status(404).json({ mesage: `Aucun utilisateur trouvé.` })
       }
     })
     .catch((error) => {
-      if (error instanceof UniqueConstraintError || error instanceof ValidationError) {
-        return res.status(400).json({ message: error.message })
-      }
-      res.status(500).json({ mesage: `La requête n'a pas aboutie.` })
+      res.status(500).json({ mesage: `La requête n'a pas aboutie.`, data: error.message })
     })
 }
 
-module.exports = {
-  findAllUsers,
-  findUserByPk,
-  createUser,
-  updateUser,
-  deleteUser,
-}
+module.exports = { findAllUsers, findUserByPk, createUser, updateUser, deleteUser }
