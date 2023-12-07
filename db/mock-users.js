@@ -4,21 +4,21 @@ const users = [
     username: "Alice",
     password: "mdp123",
     email: "fakemail@fake.fr",
-    created: new Date(),
+    RoleId: 1,
   },
   {
     id: 11,
     username: "Bob",
     password: "mdp123",
     email: "fakemail2@fake.fr",
-    created: new Date(),
+    RoleId: 2,
   },
   {
     id: 12,
     username: "Charlie",
     password: "mdp123",
     email: "fakemail3@fake.fr",
-    created: new Date(),
+    RoleId: 2,
   },
 ]
 

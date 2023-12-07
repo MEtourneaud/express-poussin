@@ -1,7 +1,8 @@
 const CoworkingModel = require("../models/coworkingModel")
 const UserModel = require("../models/userModel")
+const RoleModel = require("../models/roleModel")
 const { Sequelize, DataTypes } = require("sequelize")
-const { setDataSample } = require("./setDataSample")
+const { setCoworkings, setUsers, setRoles } = require("./setDataSample")
 
 const sequelize = new Sequelize("bordeaux_coworkings", "root", "", {
   host: "localhost",
@@ -11,14 +12,23 @@ const sequelize = new Sequelize("bordeaux_coworkings", "root", "", {
 
 const Coworking = CoworkingModel(sequelize, DataTypes)
 const User = UserModel(sequelize, DataTypes)
+const Role = RoleModel(sequelize, DataTypes)
+
+Role.hasMany(User)
+User.belongsTo(Role)
+
+User.hasMany(Coworking)
+Coworking.belongsTo(User)
 
 sequelize
   .sync({ force: true })
   .then(() => {
-    setDataSample(Coworking, User)
+    setCoworkings(Coworking)
+    setUsers(User)
+    setRoles(Role)
   })
   .catch((error) => {
-    console.log(error.message)
+    console.log(error)
   })
 
 sequelize
@@ -26,4 +36,4 @@ sequelize
   .then(() => console.log("La connexion à la base de données a bien été établie."))
   .catch((error) => console.error(`Impossible de se connecter à la base de données ${error}`))
 
-module.exports = { sequelize, Coworking, User }
+module.exports = { Coworking, User, Role }

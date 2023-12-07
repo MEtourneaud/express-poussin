@@ -1,4 +1,4 @@
-const { User } = require("../db/sequelizeSetup")
+const { User, Role } = require("../db/sequelizeSetup")
 const bcrypt = require("bcrypt")
 const jwt = require("jsonwebtoken")
 const SECRET_KEY = require("../configs/tokenData")
@@ -46,7 +46,7 @@ const protect = (req, res, next) => {
   if (token) {
     try {
       const decoded = jwt.verify(token, SECRET_KEY)
-      console.log(decoded)
+      console.log(decoded.data)
       next()
     } catch (error) {
       return res.status(403).json({ message: `Le token n'est pas valide.` })
@@ -54,4 +54,29 @@ const protect = (req, res, next) => {
   }
 }
 
-module.exports = { login, protect }
+// Implémenter le middleware pour restreindre l'accès aux utilisateurs admin
+const restrict = (req, res, next) => {
+  User.findOne({
+    where: {
+      username: req.username,
+    },
+  })
+    .then((user) => {
+      Role.findByPk(user.RoleId)
+        .then((role) => {
+          if (role.label === `admin`) {
+            next()
+          } else {
+            res.status(403).json({ message: `Vous n'avez pas les droits nécessaires` })
+          }
+        })
+        .catch((error) => {
+          console.log(error)
+        })
+    })
+    .catch((error) => {
+      console.log(error)
+    })
+}
+
+module.exports = { login, protect, restrict }
