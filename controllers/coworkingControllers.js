@@ -1,6 +1,6 @@
 // const { Op } = require('sequelize')
 const { UniqueConstraintError, ValidationError } = require("sequelize")
-const { Coworking } = require("../db/sequelizeSetup")
+const { Coworking, User } = require("../db/sequelizeSetup")
 
 const findAllCoworkings = (req, res) => {
   Coworking.findAll()
@@ -27,17 +27,29 @@ const findCoworkingByPk = (req, res) => {
 }
 
 const createCoworking = (req, res) => {
-  const newCoworking = { ...req.body }
+  // Ajouter foreignKey UserId sur le coworking de façon automatique, en se basant sur l'authenification précédente dans le middleware protect
+  User.findOne({ where: { username: req.username } })
+    .then((user) => {
+      if (!user) {
+        return res.status(404).json({ message: `L'utilisateur n'a pas été trouvé.` })
+      }
+      const newCoworking = { ...req.body, UserId: user.id }
 
-  Coworking.create(newCoworking)
-    .then((coworking) => {
-      res.status(201).json({ message: "Le coworking a bien été créé", data: coworking })
+      Coworking.create(newCoworking)
+        .then((coworking) => {
+          res.status(201).json({ message: "Le coworking a bien été créé", data: coworking })
+        })
+        .catch((error) => {
+          if (error instanceof UniqueConstraintError || error instanceof ValidationError) {
+            return res.status(400).json({ message: error.message })
+          }
+          res
+            .status(500)
+            .json({ message: `Le coworking n'a pas pu être créé`, data: error.message })
+        })
     })
     .catch((error) => {
-      if (error instanceof UniqueConstraintError || error instanceof ValidationError) {
-        return res.status(400).json({ message: error.message })
-      }
-      res.status(500).json({ message: `Le coworking n'a pas pu être créé`, data: error.message })
+      res.status(500).json(error.message)
     })
 }
 

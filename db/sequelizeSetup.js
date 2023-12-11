@@ -23,7 +23,7 @@ Coworking.belongsTo(User)
 sequelize
   .sync({ force: true })
   .then(() => {
-    setCoworkings(Coworking)
+    // setCoworkings(Coworking)
     setUsers(User)
     setRoles(Role)
   })

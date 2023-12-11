@@ -7,14 +7,14 @@ const {
   updateCoworking,
   deleteCoworking,
 } = require("../controllers/coworkingControllers")
-const { protect } = require("../controllers/authControllers")
+const { protect, restrictToOwnUser } = require("../controllers/authControllers")
 
 router.route("/").get(findAllCoworkings).post(protect, createCoworking)
 
 router
   .route("/:id")
   .get(findCoworkingByPk)
-  .put(protect, updateCoworking)
-  .delete(protect, deleteCoworking)
+  .put(protect, restrictToOwnUser, updateCoworking)
+  .delete(protect, restrictToOwnUser, deleteCoworking)
 
 module.exports = router
