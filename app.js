@@ -11,6 +11,14 @@ app.use(morgan("dev"))
 app.use(cookieParser())
 
 app.get("/", (req, res) => {
+  // Exemple d'un cookie de première visite d'un site
+  // console.log(req.cookies)
+  // res.cookie(`estDejaVenuSurLeSite`, true)
+  // if (req.cookies.estDejaVenuSurLeSite) {
+  //   res.json("Hello World !")
+  // } else {
+  //   res.json("Salut le nouveau !")
+  // }
   res.json("Hello World !")
 })
 
