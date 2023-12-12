@@ -89,28 +89,37 @@ const restrict = (req, res, next) => {
 }
 
 // Implémenter le middleware qui sera utilisé sur updateCoworking et deleteCoworking, qui permmettra d'interagir sur la ressource seulement si on en est l'auteur. Si ce n'est pas le cas, on renvoie une erreur 403.
-const restrictToOwnUser = (req, res, next) => {
-  User.findOne({
-    where: { username: req.username },
-  })
-    .then((user) => {
-      if (!user) {
-        return res.status(404).json({ message: `Pas d'utilisateur trouvé.` })
-      }
-      Coworking.findByPk(req.params.id)
-        .then((coworking) => {
-          if (!coworking) return res.status(404).json({ message: `La ressource n'existe pas.` })
-          if (user.id === coworking.UserId) {
-            next()
-          } else {
-            res.status(403).json({ message: `Vous n'êtes pas l'auteur de la ressource.` })
-          }
-        })
-        .catch((error) => {
-          return res.status(500).json({ message: error.message })
-        })
+const restrictToOwnUser = (model) => {
+  return (req, res, next) => {
+    User.findOne({
+      where: { username: req.username },
     })
-    .catch((error) => console.log(error.message))
+      .then((user) => {
+        if (!user) {
+          return res.status(404).json({ message: `Pas d'utilisateur trouvé.` })
+        }
+        // on teste d'abord si le user est admin
+        return Role.findByPk(user.RoleId).then((role) => {
+          if (role.label === "admin") {
+            return next()
+          }
+          model
+            .findByPk(req.params.id)
+            .then((coworking) => {
+              if (!coworking) return res.status(404).json({ message: `La ressource n'existe pas.` })
+              if (user.id === coworking.UserId) {
+                next()
+              } else {
+                res.status(403).json({ message: `Vous n'êtes pas l'auteur de la ressource.` })
+              }
+            })
+            .catch((error) => {
+              return res.status(500).json({ message: error.message })
+            })
+        })
+      })
+      .catch((error) => console.log(error.message))
+  }
 }
 
 module.exports = { login, protect, restrict, restrictToOwnUser }

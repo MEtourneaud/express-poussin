@@ -7,10 +7,15 @@ const {
   updateReview,
   deleteReview,
 } = require("../controllers/reviewControllers")
-const { protect } = require("../controllers/authControllers")
+const { protect, restrictToOwnUser } = require("../controllers/authControllers")
+const { Review } = require("../db/sequelizeSetup")
 
 router.route("/").get(findAllReviews).post(protect, createReview)
 
-router.route("/:id").get(findReviewByPk).put(updateReview).delete(protect, deleteReview)
+router
+  .route("/:id")
+  .get(findReviewByPk)
+  .put(protect, restrictToOwnUser(Review), updateReview)
+  .delete(protect, restrictToOwnUser(Review), deleteReview)
 
 module.exports = router
