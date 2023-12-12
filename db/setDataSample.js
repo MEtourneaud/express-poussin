@@ -126,4 +126,4 @@ const setRegistrations = (Registration) => {
   Registration.create({ CustomerId: 9, CoworkingId: 3, payment: "yearly" })
 }
 
-module.exports = { setCoworkings, setUsers, setRoles, setCustomers, setRegistrations }
+module.exports = { setCoworkings, setUsers, setRoles }

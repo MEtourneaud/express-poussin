@@ -1,9 +1,10 @@
 // const { Op } = require('sequelize')
 const { UniqueConstraintError, ValidationError } = require("sequelize")
-const { Coworking, User } = require("../db/sequelizeSetup")
+const { Coworking, User, Review } = require("../db/sequelizeSetup")
 
 const findAllCoworkings = (req, res) => {
-  Coworking.findAll()
+  // "include" paramètre optionnel qui permet d'ajouter les données relatives aux commentaires d'un coworking
+  Coworking.findAll({ include: Review })
     .then((results) => {
       res.json(results)
     })
