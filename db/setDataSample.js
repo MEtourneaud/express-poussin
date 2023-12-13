@@ -30,7 +30,11 @@ const setUsers = (User) => {
 }
 
 const setRoles = (Role) => {
-  return Promise.all([Role.create({ label: "admin" }), Role.create({ label: "edit" })])
+  return Promise.all([
+    Role.create({ label: "superadmin" }),
+    Role.create({ label: "admin" }),
+    Role.create({ label: "edit" }),
+  ])
 }
 
 // const setReview = (Review) => {}

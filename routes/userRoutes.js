@@ -13,6 +13,10 @@ router.route("/").get(findAllUsers).post(createUser)
 
 router.route("/login").post(login)
 
-router.route("/:id").get(findUserByPk).put(updateUser).delete(protect, restrict, deleteUser)
+router
+  .route("/:id")
+  .get(findUserByPk)
+  .put(protect, restrict("admin"), updateUser)
+  .delete(protect, restrict("superadmin"), deleteUser)
 
 module.exports = router

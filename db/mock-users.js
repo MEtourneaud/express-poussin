@@ -18,7 +18,7 @@ const users = [
     username: "Charlie",
     password: "mdp123",
     email: "fakemail3@fake.fr",
-    RoleId: 2,
+    RoleId: 3,
   },
 ]
 

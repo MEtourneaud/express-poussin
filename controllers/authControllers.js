@@ -3,6 +3,12 @@ const bcrypt = require("bcrypt")
 const jwt = require("jsonwebtoken")
 const SECRET_KEY = require("../configs/tokenData")
 
+const rolesHierarchy = {
+  edit: ["edit"],
+  admin: ["admin", "edit"],
+  superadmin: ["superadmin", "admin", "edit"],
+}
+
 const login = (req, res) => {
   // A. On vérifie que l'utilisateur qui tente de se connecter existe bel et bien dans notre BDD
   User.findOne({ where: { username: req.body.username } })
@@ -23,7 +29,7 @@ const login = (req, res) => {
               data: result.username,
             },
             SECRET_KEY,
-            { expiresIn: "1h" }
+            { expiresIn: "5h" }
           )
 
           // res.cookie("coworkingapi_jwt", token)
@@ -64,28 +70,30 @@ const protect = (req, res, next) => {
 }
 
 // implémenter le middleware pour interdire l'accès aux utilisateurs non admin
-const restrict = (req, res, next) => {
-  User.findOne({
-    where: {
-      username: req.username,
-    },
-  })
-    .then((user) => {
-      Role.findByPk(user.RoleId)
-        .then((role) => {
-          if (role.label === "admin") {
-            next()
-          } else {
-            res.status(403).json({ message: `Droits insuffisants` })
-          }
-        })
-        .catch((error) => {
-          console.log(error.message)
-        })
+const restrict = (labelRole) => {
+  return (req, res, next) => {
+    User.findOne({
+      where: {
+        username: req.username,
+      },
     })
-    .catch((error) => {
-      console.log(error)
-    })
+      .then((user) => {
+        Role.findByPk(user.RoleId)
+          .then((role) => {
+            if (rolesHierarchy[role.label].includes(labelRole)) {
+              next()
+            } else {
+              res.status(403).json({ message: `Droits insuffisants` })
+            }
+          })
+          .catch((error) => {
+            console.log(error.message)
+          })
+      })
+      .catch((error) => {
+        console.log(error)
+      })
+  }
 }
 
 // Implémenter le middleware qui sera utilisé sur updateCoworking et deleteCoworking, qui permmettra d'interagir sur la ressource seulement si on en est l'auteur. Si ce n'est pas le cas, on renvoie une erreur 403.
@@ -105,9 +113,9 @@ const restrictToOwnUser = (model) => {
           }
           model
             .findByPk(req.params.id)
-            .then((coworking) => {
-              if (!coworking) return res.status(404).json({ message: `La ressource n'existe pas.` })
-              if (user.id === coworking.UserId) {
+            .then((ressource) => {
+              if (!ressource) return res.status(404).json({ message: `La ressource n'existe pas.` })
+              if (user.id === ressource.UserId) {
                 next()
               } else {
                 res.status(403).json({ message: `Vous n'êtes pas l'auteur de la ressource.` })
@@ -122,4 +130,4 @@ const restrictToOwnUser = (model) => {
   }
 }
 
-module.exports = { login, protect, restrict, restrictToOwnUser }
+module.exports = { rolesHierarchy, login, protect, restrict, restrictToOwnUser }
