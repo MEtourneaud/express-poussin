@@ -1,7 +1,14 @@
+// on définit le model coworking qui se traduira par une table avec ses champs dans la BDD
 module.exports = (sequelize, DataTypes) => {
   return sequelize.define(
     "Coworking",
     {
+      // Model attributes are defined here
+      id: {
+        type: DataTypes.INTEGER,
+        primaryKey: true,
+        autoIncrement: true,
+      },
       name: {
         type: DataTypes.STRING,
         allowNull: false,
@@ -10,7 +17,7 @@ module.exports = (sequelize, DataTypes) => {
         },
         validate: {
           len: {
-            msg: "Le nom doit avoir un nombre de caractères compris entre 3 et 50.",
+            msg: "Le nom doit avoir un nombre de caractères compris entre 2 et 50.",
             args: [3, 50],
           },
         },
@@ -19,6 +26,7 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.JSON,
         validate: {
           isPriceValid(value) {
+            // custom validator : au moins un des 3 prix doit être renseigné par le client
             if (
               value.hasOwnProperty("hour") &&
               value.hasOwnProperty("day") &&
@@ -51,6 +59,9 @@ module.exports = (sequelize, DataTypes) => {
             msg: "La superficie doit être un entier.",
           },
         },
+      },
+      imageUrl: {
+        type: DataTypes.STRING,
       },
     },
     {

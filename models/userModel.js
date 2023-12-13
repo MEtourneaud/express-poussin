@@ -10,8 +10,8 @@ module.exports = (sequelize, DataTypes) => {
         },
         validate: {
           len: {
-            msg: "Le nom d'utilisateur doit avoir un nombre de caractères compris entre 3 et 50.",
-            args: [3, 50],
+            msg: "Le nom d'utilisateur doit avoir un nombre de caractères compris entre 8 et 40.",
+            args: [8, 40],
           },
         },
       },
@@ -19,17 +19,17 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING,
         allowNull: false,
       },
-      email: {
-        type: DataTypes.STRING,
-        allowNull: false,
-        isEmail: true,
-        unique: {
-          msg: "Cette adresse mail est déjà utilisée.",
-        },
-      },
     },
     {
       onDelete: "CASCADE",
+      defaultScope: {
+        attributes: { exclude: ["password"] },
+      },
+      scopes: {
+        withPassword: {
+          attributes: {},
+        },
+      },
     }
   )
 }

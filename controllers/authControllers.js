@@ -1,4 +1,4 @@
-const { User, Role, Coworking } = require("../db/sequelizeSetup")
+const { User, Role } = require("../db/sequelizeSetup")
 const bcrypt = require("bcrypt")
 const jwt = require("jsonwebtoken")
 const SECRET_KEY = require("../configs/tokenData")
@@ -11,7 +11,8 @@ const rolesHierarchy = {
 
 const login = (req, res) => {
   // A. On vérifie que l'utilisateur qui tente de se connecter existe bel et bien dans notre BDD
-  User.findOne({ where: { username: req.body.username } })
+  User.scope("withPassword")
+    .findOne({ where: { username: req.body.username } })
     .then((result) => {
       // B. Si l'utilisateur n'existe pas, on renvoie une réponse erreur Client
       if (!result) {
@@ -29,10 +30,11 @@ const login = (req, res) => {
               data: result.username,
             },
             SECRET_KEY,
-            { expiresIn: "5h" }
+            { expiresIn: "10h" }
           )
 
-          // res.cookie("coworkingapi_jwt", token)
+          // Possibilité de stocker le jwt dans un cookie côté client
+          // res.cookie('coworkingapi_jwt', token)
           res.json({ message: `Login réussi`, data: token })
         })
         .catch((error) => {
@@ -45,15 +47,15 @@ const login = (req, res) => {
 }
 
 const protect = (req, res, next) => {
-  // console.log(req.headers)
   if (!req.headers.authorization) {
     return res.status(401).json({ message: `Vous n'êtes pas authentifié.` })
   }
 
   const token = req.headers.authorization.split(" ")[1]
 
+  // Possibilité de stocker le jwt dans un cookie côté client
   // if (!req.cookies.coworkingapi_jwt) {
-  //   return res.status(401).json({ message: `Vous n'êtes pas authentifié.` })
+  //     return res.status(401).json({ message: `Vous n'êtes pas authentifié.` })
   // }
 
   // const token = req.cookies.coworkingapi_jwt
@@ -69,7 +71,7 @@ const protect = (req, res, next) => {
   }
 }
 
-// implémenter le middleware pour interdire l'accès aux utilisateurs non admin
+// Ajouter le paramètre labelRole
 const restrict = (labelRole) => {
   return (req, res, next) => {
     User.findOne({
@@ -108,14 +110,14 @@ const restrictToOwnUser = (model) => {
         }
         // on teste d'abord si le user est admin
         return Role.findByPk(user.RoleId).then((role) => {
-          if (rolesHierarchy[role.label].includes(labelRole)) {
+          if (rolesHierarchy[role.label].includes("admin")) {
             return next()
           }
           model
             .findByPk(req.params.id)
-            .then((ressource) => {
-              if (!ressource) return res.status(404).json({ message: `La ressource n'existe pas.` })
-              if (user.id === ressource.UserId) {
+            .then((resource) => {
+              if (!resource) return res.status(404).json({ message: `La ressource n'existe pas.` })
+              if (user.id === resource.UserId) {
                 next()
               } else {
                 res.status(403).json({ message: `Vous n'êtes pas l'auteur de la ressource.` })
@@ -130,4 +132,34 @@ const restrictToOwnUser = (model) => {
   }
 }
 
-module.exports = { rolesHierarchy, login, protect, restrict, restrictToOwnUser }
+const correctUser = (req, res, next) => {
+  User.findOne({ where: { username: req.username } })
+    .then((authUser) => {
+      console.log(authUser.id, parseInt(req.params.id))
+      if (authUser.id === parseInt(req.params.id)) {
+        next()
+      } else {
+        res.status(403).json({ message: "Droits insuffisants." })
+      }
+      // Role.findByPk(authUser.RoleId)
+      //     .then(role => {
+      //         // if (rolesHierarchy[role.label].includes('admin')) {
+      //         //     return next()
+      //         // }
+
+      //         if (authUser.id === req.params.id) {
+      //             next()
+      //         } else {
+      //             res.status(403).json({ message: "Droits insuffisants." })
+      //         }
+      //     })
+    })
+    .catch((error) => {
+      res.status(500).json({ message: error.message })
+    })
+  // if (result.id !== req.params.id) {
+  //     return res.status(403).json({ message: 'Droits insuffisants.' })
+  // }
+}
+
+module.exports = { login, protect, restrict, restrictToOwnUser, correctUser }
