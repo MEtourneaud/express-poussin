@@ -66,7 +66,7 @@ const protect = (req, res, next) => {
   if (token) {
     try {
       const decoded = jwt.verify(token, SECRET_KEY)
-      req.username = decoded.data
+      req.username = decoded.data.username
       next()
     } catch (error) {
       return res.status(403).json({ message: `Le token n'est pas valide.` })
